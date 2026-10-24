@@ -1,0 +1,158 @@
+{
+ "hero": {
+  "base": "hero-gym-floor",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "Bright commercial training floor with rows of indoor bikes"
+ },
+ "commercial": {
+  "base": "facilities-university",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "University fitness centre with cardio and strength zones"
+ },
+ "home": {
+  "base": "home-gym",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "Premium home gym with treadmill and squat rack"
+ },
+ "cycle": {
+  "base": "hero-gym-floor-square",
+  "widths": [
+   640,
+   1024,
+   1536,
+   2048
+  ],
+  "w": 2048,
+  "h": 2048,
+  "alt": "Indoor cycling studio"
+ },
+ "cardio": {
+  "base": "cardio",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "Row of commercial treadmills and ellipticals"
+ },
+ "strength": {
+  "base": "strength",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "Power rack with Olympic bar and plates"
+ },
+ "weights": {
+  "base": "weights-detail",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "Hex dumbbells on a rack"
+ },
+ "refurb": {
+  "base": "refurbished-showroom",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "Showroom of refurbished commercial equipment"
+ },
+ "refurbished": {
+  "base": "refurbished-showroom",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "Showroom of refurbished commercial equipment"
+ },
+ "service": {
+  "base": "service-parts",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "Technician servicing an indoor bike"
+ },
+ "about": {
+  "base": "hero-gym-floor",
+  "widths": [
+   1280,
+   1920,
+   2560,
+   3840
+  ],
+  "w": 3840,
+  "h": 2160,
+  "alt": "Commercial training floor"
+ },
+ "story": {
+  "base": "strength-square",
+  "widths": [
+   640,
+   1024,
+   1536,
+   2048
+  ],
+  "w": 2048,
+  "h": 2048,
+  "alt": "Strength rack"
+ },
+ "homesq": {
+  "base": "home-gym-square",
+  "widths": [
+   640,
+   1024,
+   1536,
+   2048
+  ],
+  "w": 2048,
+  "h": 2048,
+  "alt": "Home gym"
+ }
+}

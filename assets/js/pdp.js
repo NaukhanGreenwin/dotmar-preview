@@ -87,6 +87,18 @@
   [buyNow,addCart,d.getElementById('bar-buy')].forEach(function(b){ if(b) b.addEventListener('click',function(e){ if(b.getAttribute('aria-disabled')==='true') e.preventDefault(); }); });
   if(vars&&vars.length&&!data.quote) update();
 
+  /* v9 PDP details accordions (button + aria-expanded, animated via grid rows) */
+  var acc=d.querySelector('.pdx-acc');
+  if(acc){
+    acc.classList.add('is-ready');
+    acc.querySelectorAll('.pdx-acc__btn').forEach(function(b){
+      b.addEventListener('click',function(){
+        var it=b.closest('.pdx-acc__item'), open=b.getAttribute('aria-expanded')!=='true';
+        b.setAttribute('aria-expanded',String(open)); it.classList.toggle('is-open',open);
+      });
+    });
+  }
+
   /* sticky bottom buy bar (phones): visible once the main buy actions scroll out of view */
   var bar=d.getElementById('pbar'), main=d.getElementById('buy-main');
   if(bar&&main&&'IntersectionObserver' in window){

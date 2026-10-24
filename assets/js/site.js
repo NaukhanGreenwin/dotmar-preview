@@ -29,14 +29,17 @@
   var catalogP=null;
   function catalog(){ if(!catalogP) catalogP=fetch(ROOT+'data/catalog.json').then(function(r){return r.json();}); return catalogP; }
   function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim(); }
+  var SYN={'indoor-cycle':'spin bike bikes cycling','treadmill':'treadmills running','upright-bikes':'bike bikes','recumbent-bikes':'bike bikes','rowers':'rowing','dumbbells-barbells':'dumbbells','stages-parts':'parts','schwinn-bike-parts':'parts','pedals-cleats':'parts','power-racks-and-rigs':'power rack racks rig','refurbished':'refurbished used pre owned'};
+  function syn(p){ return (p.s||[]).concat(p.k||[]).map(function(k){ return SYN[k]||''; }).join(' '); }
   function search(list,q){
     var terms=norm(q).split(' ').filter(Boolean); if(!terms.length) return [];
     var out=[];
     for(var i=0;i<list.length;i++){
-      var p=list[i]; var hay=p._n||(p._n=' '+norm(p.t+' '+p.b+' '+(p.s||[]).join(' ').replace(/-/g,' '))+' ');
+      var p=list[i]; var hay=p._n||(p._n=' '+norm(p.t+' '+p.b+' '+(p.s||[]).join(' ').replace(/-/g,' ')+' '+(p.k||[]).join(' ')+' '+syn(p))+' ');
       var sc=0,ok=true;
       for(var j=0;j<terms.length;j++){
         var t=terms[j], ix=hay.indexOf(t);
+        if(ix<0&&t.length>3&&/s$/.test(t)){ t=t.replace(/(es|s)$/,''); ix=hay.indexOf(t); if(ix<0){ t=terms[j].slice(0,-1); ix=hay.indexOf(t); } }
         if(ix<0){ ok=false; break; }
         sc+= hay.indexOf(' '+t)>-1 ? 3 : 1;
         if(norm(p.t).indexOf(t)===0) sc+=2;

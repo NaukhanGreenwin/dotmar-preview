@@ -4,43 +4,29 @@
   var d=document, DM=window.DM, data=JSON.parse(d.getElementById('pdata').textContent);
   var STORE='https://dotmarfitness.com';
   var imgs=data.images, cur=0;
-  var stage=d.getElementById('stage'), stageImg=stage?stage.querySelector('img'):null;
-  var thumbs=[].slice.call(d.querySelectorAll('.gal__thumbs button'));
-  var counter=d.getElementById('gal-count');
-  var fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
-
-  function show(i){
-    if(!imgs.length||!stageImg) return; cur=(i+imgs.length)%imgs.length; var im=imgs[cur];
-    stageImg.style.opacity='0';
-    var n=new Image(); if(im.L){ n.src=DM.loc(im.L,1024); n.srcset=DM.lset(im.L); } else { n.src=DM.sized(im.src,1200); n.srcset=DM.srcset(im.src)+', '+DM.sized(im.src,1440)+' 1440w'; }
-    var swap=function(){ stageImg.src=n.src; stageImg.srcset=n.srcset; stageImg.style.opacity='1'; };
-    if(n.decode) n.decode().then(swap,swap); else n.onload=swap;
-    thumbs.forEach(function(t,k){ t.setAttribute('aria-current',String(k===cur)); });
-    if(counter) counter.textContent=(cur+1)+' / '+imgs.length;
-  }
-  thumbs.forEach(function(t,k){ t.addEventListener('click',function(){ show(k); }); });
-
-  /* hover zoom (mouse only) */
-  if(stage&&fine){
-    stage.addEventListener('pointermove',function(e){ if(e.pointerType!=='mouse') return; var r=stage.getBoundingClientRect(); stageImg.style.transformOrigin=((e.clientX-r.left)/r.width*100)+'% '+((e.clientY-r.top)/r.height*100)+'%'; });
-    stage.addEventListener('pointerenter',function(e){ if(e.pointerType==='mouse') stage.classList.add('is-zoom'); });
-    stage.addEventListener('pointerleave',function(){ stage.classList.remove('is-zoom'); });
-  }
-  /* swipe on touch stage */
-  if(stage){
-    var sx=null;
-    stage.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; },{passive:true});
-    stage.addEventListener('touchend',function(e){ if(sx===null) return; var dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40){ show(cur+(dx<0?1:-1)); stage._swiped=true; setTimeout(function(){stage._swiped=false;},300);} sx=null; });
+  /* v6 gallery: native scroll-snap track (swipe), arrows, thumbs, dots */
+  var g=d.querySelector('[data-g2]'), track=g&&g.querySelector('.g2__track');
+  var thumbs=g?[].slice.call(g.querySelectorAll('[data-go]')):[], dots=g?[].slice.call(g.querySelectorAll('.g2__dots i')):[], counter=g&&g.querySelector('.g2__count');
+  function mark(i){ cur=i; thumbs.forEach(function(t,k){ t.setAttribute('aria-current',String(k===i)); }); dots.forEach(function(t,k){ t.classList.toggle('on',k===i); }); if(counter&&imgs.length>1) counter.textContent=(i+1)+' / '+imgs.length;
+    var th=thumbs[i]; if(th&&th.parentNode.scrollWidth>th.parentNode.clientWidth){ th.parentNode.scrollTo({left:th.offsetLeft-th.parentNode.clientWidth/2+th.offsetWidth/2,behavior:'smooth'}); } }
+  function show(i,instant){ if(!track||!imgs.length) return; i=(i+imgs.length)%imgs.length; track.scrollTo({left:i*track.clientWidth,behavior:instant?'auto':'smooth'}); mark(i); }
+  if(track){
+    mark(0);
+    var rt; track.addEventListener('scroll',function(){ clearTimeout(rt); rt=setTimeout(function(){ var i=Math.round(track.scrollLeft/Math.max(1,track.clientWidth)); if(i!==cur) mark(i); },60); },{passive:true});
+    thumbs.forEach(function(t){ t.addEventListener('click',function(){ show(+t.getAttribute('data-go')); }); });
+    g.querySelectorAll('[data-step]').forEach(function(b){ b.addEventListener('click',function(){ show(cur+(+b.getAttribute('data-step'))); }); });
+    track.addEventListener('keydown',function(e){ if(e.key==='ArrowRight'){ e.preventDefault(); show(cur+1); } if(e.key==='ArrowLeft'){ e.preventDefault(); show(cur-1); } });
+    window.addEventListener('resize',function(){ show(cur,true); });
   }
 
   /* lightbox */
   var lb=d.getElementById('lb'), lbStage=lb&&lb.querySelector('.lb__stage'), lbImg=lb&&lb.querySelector('.lb__stage img'), lbCount=lb&&lb.querySelector('[data-lb-count]');
   var z=1,tx=0,ty=0,drag=null;
   function apply(){ lbImg.style.transform='translate(calc(-50% + '+tx+'px), calc(-50% + '+ty+'px)) scale('+z+')'; lbStage.classList.toggle('is-z',z>1); }
-  function lbShow(i){ cur=(i+imgs.length)%imgs.length; z=1;tx=0;ty=0; apply(); lbImg.src=imgs[cur].L?DM.loc(imgs[cur].L,2048):DM.sized(imgs[cur].src,2048); lbCount.textContent=(cur+1)+' / '+imgs.length; }
+  function lbShow(i){ cur=(i+imgs.length)%imgs.length; z=1;tx=0;ty=0; apply(); lbImg.src=imgs[cur].L?DM.loc(imgs[cur].L,4096):DM.sized(imgs[cur].src,2048); lbCount.textContent=(cur+1)+' / '+imgs.length; }
   function lbOpen(){ if(!lb||!imgs.length) return; lb.classList.add('is-open'); lb.removeAttribute('inert'); d.documentElement.style.overflow='hidden'; lbShow(cur); lb.querySelector('[data-lb-close]').focus(); }
-  function lbClose(){ lb.classList.remove('is-open'); lb.setAttribute('inert',''); d.documentElement.style.overflow=''; show(cur); }
-  if(stage) stage.addEventListener('click',function(){ if(!stage._swiped) lbOpen(); });
+  function lbClose(){ lb.classList.remove('is-open'); lb.setAttribute('inert',''); d.documentElement.style.overflow=''; show(cur,true); }
+  if(g){ g.querySelectorAll('[data-zoom]').forEach(function(b){ b.addEventListener('click',function(){ cur=+b.getAttribute('data-zoom'); lbOpen(); }); }); var fz=g.querySelector('[data-zoom-cur]'); if(fz) fz.addEventListener('click',lbOpen); }
   if(lb){
     lb.querySelector('[data-lb-close]').addEventListener('click',lbClose);
     var p=lb.querySelector('.lb__nav--p'), n=lb.querySelector('.lb__nav--n');
@@ -79,11 +65,14 @@
     if(!v){ if(buyNow){ buyNow.setAttribute('aria-disabled','true'); } return; }
     if(data.quote) return;
     priceEl.innerHTML='<span class="now">'+DM.money(v.p)+'</span>'+(v.c>v.p?'<s>'+DM.money(v.c)+'</s><span class="save">Save '+DM.money(v.c-v.p)+'</span>':'')+'<span class="cur">CAD</span>';
-    stockEl.className='stock'+(v.a?'':' stock--out'); stockEl.textContent=v.a?'In stock':'Sold out';
+    stockEl.className='pill'+(v.a?'':' pill--out'); stockEl.textContent=v.a?'In stock':'Sold out';
     var q=Math.max(1,Math.min(99,parseInt(qtyIn.value,10)||1));
     buyNow.href=STORE+'/cart/'+v.id+':'+q; addCart.href=STORE+'/cart/add?id='+v.id+'&quantity='+q;
     [buyNow,addCart].forEach(function(b){ if(v.a){ b.removeAttribute('aria-disabled'); b.tabIndex=0; } else { b.setAttribute('aria-disabled','true'); } });
     buyNow.textContent=v.a?'Buy on Dotmar':'Sold out';
+    var bb=d.getElementById('bar-buy'), bp=d.querySelector('[data-bar-price]');
+    if(bb){ bb.href=buyNow.href; bb.textContent=buyNow.textContent; if(v.a) bb.removeAttribute('aria-disabled'); else bb.setAttribute('aria-disabled','true'); }
+    if(bp) bp.textContent=DM.money(v.p);
     if(v.img!=null&&v.img!==cur&&v.img<imgs.length) show(v.img);
   }
   d.querySelectorAll('[data-opt]').forEach(function(g){
@@ -95,6 +84,13 @@
     d.querySelectorAll('[data-qty]').forEach(function(b){ b.addEventListener('click',function(){ qtyIn.value=Math.max(1,Math.min(99,(parseInt(qtyIn.value,10)||1)+(+b.getAttribute('data-qty')))); update(); }); });
     qtyIn.addEventListener('change',update);
   }
-  [buyNow,addCart].forEach(function(b){ if(b) b.addEventListener('click',function(e){ if(b.getAttribute('aria-disabled')==='true') e.preventDefault(); }); });
+  [buyNow,addCart,d.getElementById('bar-buy')].forEach(function(b){ if(b) b.addEventListener('click',function(e){ if(b.getAttribute('aria-disabled')==='true') e.preventDefault(); }); });
   if(vars&&vars.length&&!data.quote) update();
+
+  /* sticky bottom buy bar (phones): visible once the main buy actions scroll out of view */
+  var bar=d.getElementById('pbar'), main=d.getElementById('buy-main');
+  if(bar&&main&&'IntersectionObserver' in window){
+    var past=false, io=new IntersectionObserver(function(es){ es.forEach(function(e){ past=!e.isIntersecting&&e.boundingClientRect.top<0; bar.classList.toggle('is-on',past); bar.setAttribute('aria-hidden',String(!past)); }); });
+    io.observe(main);
+  }
 })();

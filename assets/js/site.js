@@ -12,6 +12,8 @@
   function sized(src,w){ return src+(src.indexOf('?')>-1?'&':'?')+'width='+w; }
   function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   var W=[240,360,480,720,960];
+  function loc(L,w){ var ks=Object.keys(L).map(Number).sort(function(a,b){return a-b;}); for(var i=0;i<ks.length;i++){ if(ks[i]>=w) return ROOT+L[ks[i]]; } return ROOT+L[ks[ks.length-1]]; }
+  function lset(L){ return Object.keys(L).map(function(k){ return ROOT+L[k]+' '+k+'w'; }).join(', '); }
   function srcset(src){ return W.map(function(w){return sized(src,w)+' '+w+'w';}).join(', '); }
   function card(p,sizes){
     var tag='';
@@ -20,7 +22,7 @@
     else if(!p.a) tag='<span class="card__tag card__tag--mute">Sold out</span>';
     var price = p.q ? '<span class="q">Price on request</span>' :
       ((p.m?'From ':'')+money(p.p)+(p.c>p.p?' <s>'+money(p.c)+'</s>':''));
-    var img = p.i ? '<img class="lz" src="'+sized(p.i,480)+'" srcset="'+srcset(p.i)+'" sizes="'+(sizes||'(max-width:734px) 46vw, (max-width:1068px) 31vw, 290px')+'" alt="" loading="lazy" decoding="async" width="480" height="480">' : '';
+    var img = p.i ? '<img class="lz" src="'+(p.L?loc(p.L,512):sized(p.i,480))+'" srcset="'+(p.L?lset(p.L):srcset(p.i))+'" sizes="'+(sizes||'(max-width:734px) 46vw, (max-width:1068px) 31vw, 290px')+'" alt="" loading="lazy" decoding="async" width="480" height="480">' : '';
     return '<a class="card" href="'+ROOT+'p/'+p.h+'.html"><div class="card__media">'+img+tag+'</div>'+
       '<p class="card__brand">'+(p.b?esc(p.b):'&nbsp;')+'</p>'+'<h3 class="card__title">'+esc(p.t)+'</h3><p class="card__price price">'+price+'</p></a>';
   }
@@ -46,7 +48,7 @@
     out.sort(function(a,b){return b[0]-a[0];});
     return out.map(function(x){return x[1];});
   }
-  window.DM={money:money,sized:sized,srcset:srcset,card:card,esc:esc,catalog:catalog,search:search,ROOT:ROOT,lazy:lazyFade};
+  window.DM={loc:loc,lset:lset,money:money,sized:sized,srcset:srcset,card:card,esc:esc,catalog:catalog,search:search,ROOT:ROOT,lazy:lazyFade};
 
   /* ---------- lazy fade-in for card images ---------- */
   function lazyFade(scope){
@@ -103,7 +105,7 @@
         var r=search(list,q); active=-1;
         sAll.textContent=r.length?('See all '+r.length+' results'):'No matches. Try another term';
         sRes.innerHTML=r.slice(0,8).map(function(p){
-          return '<li><a href="'+ROOT+'p/'+p.h+'.html"><span class="th">'+(p.i?'<img src="'+sized(p.i,120)+'" alt="" loading="lazy">':'')+'</span><span><span class="t">'+esc(p.t)+'</span><span class="p price">'+(p.q?'Price on request':(p.m?'From ':'')+money(p.p))+'</span></span></a></li>';
+          return '<li><a href="'+ROOT+'p/'+p.h+'.html"><span class="th">'+(p.i?'<img src="'+(p.L?loc(p.L,120):sized(p.i,120))+'" alt="" loading="lazy">':'')+'</span><span><span class="t">'+esc(p.t)+'</span><span class="p price">'+(p.q?'Price on request':(p.m?'From ':'')+money(p.p))+'</span></span></a></li>';
         }).join('');
       });
     };

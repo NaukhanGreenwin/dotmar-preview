@@ -130,6 +130,20 @@
     d.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
   } else d.querySelectorAll('.rv').forEach(function(el){ el.classList.add('is-in'); });
 
+  /* ---------- stat count-up (proof band) ---------- */
+  var cnt=[].slice.call(d.querySelectorAll('[data-count]'));
+  if(cnt.length&&!reduce&&'IntersectionObserver' in window&&window.requestAnimationFrame){
+    cnt.forEach(function(el){ el.textContent=el.getAttribute('data-from')||'0'; });
+    var cio=new IntersectionObserver(function(es){ es.forEach(function(e){
+      if(!e.isIntersecting) return; cio.unobserve(e.target);
+      var el=e.target, to=+el.getAttribute('data-count'), fr=+(el.getAttribute('data-from')||0), t0=null, dur=1400;
+      var tick=function(t){ if(t0===null) t0=t; var k=Math.min(1,(t-t0)/dur), ez=1-Math.pow(1-k,4);
+        el.textContent=String(Math.round(fr+(to-fr)*ez)); if(k<1) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    }); },{threshold:.5});
+    cnt.forEach(function(el){ cio.observe(el); });
+  }
+
   /* ---------- subtle parallax on hero + bands ---------- */
   var px=[].slice.call(d.querySelectorAll('[data-parallax]'));
   if(px.length&&!reduce){

@@ -1240,3 +1240,8 @@ blockquote.quote{border-left:3px solid var(--brand);padding-left:var(--s3)}
 @keyframes leafIn{from{opacity:0;transform:rotate(-120deg) scale(.4)}to{opacity:1;transform:none}}
 @media (max-width:480px){.seal{font-size:11px;gap:8px;padding:7px 14px 7px 10px}.seal__yr{font-size:14px}.seal__leaf{width:18px;height:18px}}
 @media (prefers-reduced-motion:reduce){.seal,.seal__leaf{animation:none}}
+/* stats band centred (NK 2026-10-24) */
+.stat{align-items:center;text-align:center;padding-left:clamp(20px,2.6vw,40px)!important;padding-right:clamp(20px,2.6vw,40px)!important}
+.stat__big{justify-content:center}
+.stat p:not(.stat__big){margin-left:auto;margin-right:auto}
+@media (max-width:900px){.stat{padding-left:var(--s3)!important;padding-right:var(--s3)!important}}

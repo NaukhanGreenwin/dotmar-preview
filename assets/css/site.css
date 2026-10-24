@@ -1228,3 +1228,15 @@ blockquote.quote{border-left:3px solid var(--brand);padding-left:var(--s3)}
 .pbar.is-on{visibility:visible;transition:transform .35s var(--ease-out),visibility 0s}
 @media (max-width:734px){.pd-brand--logo{height:40px;padding:0 14px}}
 .lb:not(.is-open) .lb__stage img{display:none}
+
+/* hero seal (NK 2026-10-24) */
+.seal{display:inline-flex;align-items:center;gap:10px;margin:0 0 22px;padding:9px 18px 9px 12px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);color:#fff;font-size:13px;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 8px 30px rgba(0,0,0,.18);animation:sealIn .9s cubic-bezier(.2,.8,.2,1) both .15s}
+.seal__leaf{width:22px;height:22px;flex:0 0 auto;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3));animation:leafIn 1.1s cubic-bezier(.2,.8,.2,1) both .35s}
+.seal__est{opacity:.75;font-weight:500}
+.seal__yr{font-weight:800;letter-spacing:.06em;font-size:16px;font-variant-numeric:tabular-nums;color:#FF6128}
+.seal__div{width:1px;height:16px;background:rgba(255,255,255,.4)}
+.seal__ca{font-weight:600}
+@keyframes sealIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes leafIn{from{opacity:0;transform:rotate(-120deg) scale(.4)}to{opacity:1;transform:none}}
+@media (max-width:480px){.seal{font-size:11px;gap:8px;padding:7px 14px 7px 10px}.seal__yr{font-size:14px}.seal__leaf{width:18px;height:18px}}
+@media (prefers-reduced-motion:reduce){.seal,.seal__leaf{animation:none}}

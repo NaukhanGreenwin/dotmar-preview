@@ -2,9 +2,12 @@
    Reference: Apple product + store pages. One family, monochrome from the logo, 8px grid. */
 @font-face{font-family:"InterVar";font-style:normal;font-weight:100 900;font-display:swap;src:url("../fonts/inter-var.woff2") format("woff2")}
 :root{
-  --ink:#1d1d1f; --ink-2:#424245; --mute:#6e6e73; --mute-2:#86868b;
-  --line:#d2d2d7; --line-2:#e8e8ed; --surface:#f5f5f7; --paper:#fff; --night:#000;
-  --accent:#1d1d1f; --accent-ink:#fff; --link:#0066cc; --sale:#b64400; --ok:#1d7f3a;
+  /* Dotmar brand (sampled from dotmarfitness.com): orange #FF6128, plum #3A2A2F, warm neutrals #E7E2DE/#F7F4F2, grey #4F5558, logo #231F20 */
+  --ink:#231F20; --ink-2:#4F5558; --mute:#5E6366; --mute-2:#8a8a8f;
+  --line:#d8d1cb; --line-2:#e7e2de; --surface:#F7F4F2; --surface-2:#E7E2DE; --paper:#fff; --night:#3A2A2F;
+  --brand:#FF6128; --brand-deep:#B8430F; --brand-ring:#E85520;
+  --accent:#C94512; --accent-hover:#B23C0D; --accent-ink:#fff; --link:#B8430F; --sale:#B8430F; --ok:#1d7f3a;
+  --on-night:#F7F4F2; --on-night-2:#C9BFC2;
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","InterVar","Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
   --s1:8px;--s2:16px;--s3:24px;--s4:32px;--s5:40px;--s6:48px;--s8:64px;--s10:80px;--s12:96px;--s16:128px;--s20:160px;
   --r-sm:8px;--r:18px;--r-lg:28px;--pill:980px;
@@ -18,7 +21,7 @@ img{display:block;max-width:100%;height:auto}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 button{cursor:pointer;background:none;border:0;padding:0}
-:focus-visible{outline:2px solid #0071e3;outline-offset:3px;border-radius:4px}
+:focus-visible{outline:2px solid var(--brand-ring);outline-offset:3px;border-radius:4px}
 .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .skip{position:absolute;left:16px;top:-60px;z-index:200;background:var(--ink);color:#fff;padding:8px 16px;border-radius:var(--pill)}
 .skip:focus{top:8px}
@@ -572,3 +575,77 @@ fieldset.field{border:0;margin:0;padding:0;min-width:0}
 .brands span{font-size:clamp(20px,2.2vw,28px);font-weight:600;letter-spacing:-.03em;color:var(--ink)}
 .steps li{align-items:center}
 .checks label{position:relative}
+
+
+/* ================= v2 brand layer (Dotmar colours) ================= */
+.eyebrow{color:var(--brand-deep);text-transform:none}
+.btn--primary:hover{background:var(--accent-hover)}
+.btn--ghost{border-color:var(--ink)}
+.more{color:var(--link);font-weight:500}
+.section--night .more,.on-dark .more{color:#FF8A5C}
+.section--night{background:var(--night);color:var(--on-night)}
+.section--night .lede,.section--night .mute{color:var(--on-night-2)}
+.section--night .eyebrow{color:var(--brand)}
+.section--night .facts li,.section--night .story__facts li{border-color:rgba(255,255,255,.18);color:var(--on-night-2)}
+.section--night .facts li b,.section--night .story__facts b{color:#fff}
+.section--night .story__year{color:var(--brand)}
+.section--night blockquote.quote footer{color:var(--on-night-2)}
+.section--night .btn--ghost{border-color:rgba(255,255,255,.7);color:#fff}
+.section--night .btn--ghost:hover{background:#fff;color:var(--ink)}
+.section--warm{background:var(--surface-2)}
+/* thin brand line + strip */
+.strip{background:var(--surface-2);border-top:3px solid var(--brand);color:var(--ink-2)}
+/* nav: active/hover underline in brand orange */
+.nav__link{position:relative}
+.nav__link::after{content:"";position:absolute;left:12px;right:12px;bottom:14px;height:2px;background:var(--brand);transform:scaleX(0);transform-origin:left;transition:transform .25s var(--ease)}
+.nav__link:hover::after,.nav__link[aria-current=page]::after,.nav__item.is-open .nav__link::after{transform:scaleX(1)}
+.mega__big a:hover,.mega__list a:hover,.info a:hover{color:var(--brand-deep)}
+/* chips, filters, options */
+.chip:hover{border-color:var(--brand-deep);color:var(--ink)}
+.chip.is-on,.chip[aria-pressed=true]{background:var(--night);border-color:var(--night);color:#fff}
+.fopt input:checked{background:var(--accent);border-color:var(--accent)}
+.switch input:checked{background:var(--accent)}
+.fclear{color:var(--link)}
+.filter-btn:hover{border-color:var(--brand-deep)}
+.checks input:checked+span{background:var(--night);border-color:var(--night);color:#fff}
+.checks input:focus-visible+span{outline-color:var(--brand-ring)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand-ring);box-shadow:0 0 0 4px rgba(255,97,40,.18)}
+.opt__vals button:hover{border-color:var(--brand-deep)}
+.opt__vals button[aria-pressed=true]{border:2px solid var(--accent)}
+.gal__thumbs button[aria-current=true]{border-color:var(--accent)}
+.stock--quote::before{background:var(--brand)}
+/* cards: sale badge + prices */
+.card__tag{background:var(--accent);color:#fff;padding:4px 10px;border-radius:var(--pill)}
+.card__tag--mute{background:rgba(255,255,255,.92);color:var(--ink-2)}
+.buy__price .save{background:var(--accent);color:#fff;padding:3px 10px;border-radius:var(--pill);font-size:13px}
+.buy__price .now{color:var(--ink)}
+.rail-nav button{background:var(--surface-2)}
+.rail-nav button:hover{background:var(--brand);color:#fff}
+.section--surface .card__media,.section--warm .card__media{background:#fff}
+.section--surface .rail-nav button,.section--warm .rail-nav button{background:#fff}
+/* steps, tiles, values: thin accent lines */
+.steps li::before{color:var(--brand-deep);font-weight:600}
+.tile{border-top:2px solid var(--brand)}
+.values{border-top:2px solid var(--brand)}
+.values h3{color:var(--ink)}
+.cta{background:var(--surface-2)}
+.cta .eyebrow{color:var(--brand-deep)}
+.story__year{color:var(--ink)}
+.brands a:hover{color:var(--brand-deep)}
+blockquote.quote{border-left:3px solid var(--brand);padding-left:var(--s3)}
+.quotes blockquote{border-top:2px solid var(--brand);padding-top:var(--s3)}
+.section--night .quotes p{color:#fff}.section--night .quotes footer{color:var(--on-night-2)}
+/* footer: plum */
+.ftr{background:var(--night);color:var(--on-night-2);border-top:3px solid var(--brand)}
+.ftr h4{color:#fff}
+.ftr a:hover{color:#fff}
+.ftr__top{border-color:rgba(255,255,255,.16)}
+.ftr__brand img{background:#fff;border-radius:12px;padding:8px 12px;height:60px;box-sizing:border-box}
+/* short punchy hero sublines */
+.lede.punch{font-weight:500;color:var(--ink)}
+.hero .lede.punch,.band .lede.punch{color:#fff}
+.since{display:grid;grid-template-columns:auto 1fr;gap:var(--s10);align-items:center}
+.since .story__year{font-size:clamp(110px,17vw,240px)}
+.since blockquote.quote{margin-top:var(--s4)}
+.since blockquote.quote p{color:#fff}
+@media (max-width:820px){.since{grid-template-columns:1fr;gap:var(--s4)}}

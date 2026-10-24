@@ -18,6 +18,7 @@
   };
   function sync(){
     var p=new URLSearchParams();
+    if(qp.get('goal')) p.set('goal',qp.get('goal'));
     if(st.q) p.set('q',st.q); if(st.sub) p.set('sub',st.sub); if(st.brands.length) p.set('brand',st.brands.join('|'));
     if(st.price) p.set('price',st.price); if(st.stock) p.set('stock','1'); if(st.sort!=='featured') p.set('sort',st.sort);
     var s=p.toString(); history.replaceState(null,'',location.pathname+(s?'?'+s:''));
@@ -78,6 +79,8 @@
   var sq=d.getElementById('page-q');
   DM.catalog().then(function(list){
     all=list;
+    var goal=qp.get('goal');
+    if(goal) all=all.filter(function(p){ return (p.g||[]).indexOf(goal)>-1; });
     if(cfg.cat) base=all.filter(function(p){ return (p.k||[]).indexOf(cfg.cat)>-1; });
     else base=st.q?DM.search(all,st.q):all.slice();
     if(!cfg.cat&&st.q&&st.sort==='featured'){ var order=new Map(base.map(function(p,i){return [p,i];})); SORTS.featured=function(a,b){ return order.get(a)-order.get(b); }; }

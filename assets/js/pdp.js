@@ -69,7 +69,7 @@
     var q=Math.max(1,Math.min(99,parseInt(qtyIn.value,10)||1));
     buyNow.href=STORE+'/cart/'+v.id+':'+q; addCart.href=STORE+'/cart/add?id='+v.id+'&quantity='+q;
     [buyNow,addCart].forEach(function(b){ if(v.a){ b.removeAttribute('aria-disabled'); b.tabIndex=0; } else { b.setAttribute('aria-disabled','true'); } });
-    buyNow.textContent=v.a?'Buy on Dotmar':'Sold out';
+    buyNow.textContent=v.a?'Buy now':'Sold out';
     var bb=d.getElementById('bar-buy'), bp=d.querySelector('[data-bar-price]');
     if(bb){ bb.href=buyNow.href; bb.textContent=buyNow.textContent; if(v.a) bb.removeAttribute('aria-disabled'); else bb.setAttribute('aria-disabled','true'); }
     if(bp) bp.textContent=DM.money(v.p);

@@ -146,6 +146,13 @@
     if(goal) all=all.filter(function(p){ return (p.g||[]).indexOf(goal)>-1; });
     if(cfg.cat) base=all.filter(function(p){ return (p.k||[]).indexOf(cfg.cat)>-1; });
     else base=st.q?DM.search(all,st.q):all.slice();
+    /* ignore unknown / foreign URL params instead of showing an empty page with a raw chip */
+    if(st.price&&!PRICE_L[st.price]) st.price='';
+    if(st.sub&&!base.some(function(p){ return (p.s||[]).indexOf(st.sub)>-1; })) st.sub='';
+    if(st.cat&&!base.some(function(p){ return (p.k||[]).indexOf(st.cat)>-1; })) st.cat='';
+    if(st.brands.length){ st.brands=st.brands.filter(function(b){ return base.some(function(p){ return p.b===b; }); }); }
+    if(typeof setSub==='function'&&!st.sub) try{ setSub(''); }catch(e){}
+    if(typeof setCat==='function'&&!st.cat) try{ setCat(''); }catch(e){}
     if(!cfg.cat&&st.q&&st.sort==='featured'){ var order=new Map(base.map(function(p,i){return [p,i];})); SORTS.featured=function(a,b){ return order.get(a)-order.get(b); }; }
     render(true);
   });

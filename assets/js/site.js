@@ -33,20 +33,34 @@
   function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim(); }
   var SYN={'indoor-cycle':'spin bike bikes cycling','treadmill':'treadmills running','upright-bikes':'bike bikes','recumbent-bikes':'bike bikes','rowers':'rowing','dumbbells-barbells':'dumbbells','stages-parts':'parts','schwinn-bike-parts':'parts','pedals-cleats':'parts','power-racks-and-rigs':'power rack racks rig','refurbished':'refurbished used pre owned'};
   function syn(p){ return (p.s||[]).concat(p.k||[]).map(function(k){ return SYN[k]||''; }).join(' '); }
+  var TYPO={tredmill:'treadmill',tredmills:'treadmills',treadmil:'treadmill',dumbells:'dumbbells',dumbell:'dumbbell',kettlebel:'kettlebell',kettlebels:'kettlebells',eliptical:'elliptical',ellipitcal:'elliptical',startrac:'star trac',rowing:'rower'};
+  var SUBW={'indoor-cycle':'spin bike bikes cycle cycling','treadmill':'treadmill treadmills running','upright-bikes':'bike bikes upright','recumbent-bikes':'bike bikes recumbent','ellipticals':'elliptical ellipticals','rowers':'rower rowers rowing','steppers-stepmills':'stepper stepmill stairs','dumbbells-barbells':'dumbbell dumbbells','power-racks-and-rigs':'rack racks rig','kettlebells-med-balls':'kettlebell kettlebells','medicine-ball-1':'medicine ball balls'};
+  function words(s){ return ' '+norm(s)+' '; }
   function search(list,q){
-    var terms=norm(q).split(' ').filter(Boolean); if(!terms.length) return [];
+    var nq=norm(q); Object.keys(TYPO).forEach(function(k){ nq=(' '+nq+' ').replace(' '+k+' ',' '+TYPO[k]+' ').trim(); });
+    var terms=nq.split(' ').filter(Boolean); if(terms.length>1) terms=terms.filter(function(t){ return t.length>1; }); if(!terms.length) return [];
     var out=[];
     for(var i=0;i<list.length;i++){
-      var p=list[i]; var hay=p._n||(p._n=' '+norm(p.t+' '+p.b+' '+(p.s||[]).join(' ').replace(/-/g,' ')+' '+(p.k||[]).join(' ')+' '+syn(p))+' ');
-      var sc=0,ok=true;
+      var p=list[i];
+      if(!p._n){ p._n=' '+norm(p.t+' '+p.b+' '+(p.s||[]).join(' ').replace(/-/g,' ')+' '+(p.k||[]).join(' ')+' '+syn(p))+' '; p._t=words(p.t); p._b=words(p.b); p._s=' '+(p.s||[]).map(function(k){ return SUBW[k]||''; }).join(' ')+' '; }
+      var sc=0,ok=true,tmatch=0;
       for(var j=0;j<terms.length;j++){
-        var t=terms[j], ix=hay.indexOf(t);
-        if(ix<0&&t.length>3&&/s$/.test(t)){ t=t.replace(/(es|s)$/,''); ix=hay.indexOf(t); if(ix<0){ t=terms[j].slice(0,-1); ix=hay.indexOf(t); } }
-        if(ix<0){ ok=false; break; }
-        sc+= hay.indexOf(' '+t)>-1 ? 3 : 1;
-        if(norm(p.t).indexOf(t)===0) sc+=2;
+        var t0=terms[j], cand=[t0]; if(t0.length>3&&/s$/.test(t0)) cand.push(t0.replace(/(es|s)$/,''),t0.slice(0,-1));
+        var best=-1;
+        for(var c=0;c<cand.length;c++){ var t=cand[c], v=-1;
+          if(p._t.indexOf(' '+t+' ')>-1||p._t.indexOf(' '+t+'s ')>-1){ v=10; tmatch++; }
+          else if(p._b.indexOf(' '+t+' ')>-1) v=8;
+          else if(p._s.indexOf(' '+t+' ')>-1) v=8;
+          else if(p._t.indexOf(' '+t)>-1) v=4;
+          else if(p._n.indexOf(' '+t)>-1) v=2;
+          else if(t.length>3&&p._n.indexOf(t)>-1) v=1;
+          if(v>best) best=v; }
+        if(best<0){ ok=false; break; }
+        sc+=best;
+        if(p._s.indexOf(' '+t0+' ')>-1||p._s.indexOf(' '+t0.replace(/s$/,'')+' ')>-1) sc+=8;   /* product IS that type */
       }
       if(!ok) continue;
+      if(terms.length>1&&p._b.indexOf(' '+terms.join(' ')+' ')>-1) sc+=15;   /* exact brand phrase */
       if(p.a) sc+=2; if(p.i) sc+=1; if(!p.q) sc+=1;
       out.push([sc,p]);
     }
@@ -86,10 +100,11 @@
     nav.querySelectorAll('.nav__link').forEach(function(a){ a.addEventListener('pointerenter',function(e){ if(e.pointerType==='mouse') moveInd(a); }); a.addEventListener('focus',function(){ moveInd(a); }); });
     nav.addEventListener('pointerleave',function(){ setTimeout(function(){ moveInd(); },200); });
   }
+  function megaImgs(scope){ scope.querySelectorAll('[data-srcset],img[data-src]').forEach(function(x){ if(x.dataset.srcset){ x.srcset=x.dataset.srcset; x.removeAttribute('data-srcset'); } if(x.dataset.src){ x.src=x.dataset.src; x.removeAttribute('data-src'); } }); }
   function setOpen(item){
     if(openItem&&openItem!==item){ openItem.classList.remove('is-open'); openItem.querySelector('.nav__link').setAttribute('aria-expanded','false'); }
     openItem=item;
-    if(item){ item.classList.add('is-open'); item.querySelector('.nav__link').setAttribute('aria-expanded','true'); }
+    if(item){ megaImgs(item); item.classList.add('is-open'); item.querySelector('.nav__link').setAttribute('aria-expanded','true'); }
     if(scrim) scrim.classList.toggle('is-on',!!item);
     if(hdr) hdr.classList.toggle('is-mega',!!item);
     if(typeof solid==='function') solid();
@@ -97,7 +112,7 @@
   }
   d.querySelectorAll('.nav__item[data-mega]').forEach(function(item){
     var link=item.querySelector('.nav__link');
-    item.addEventListener('pointerenter',function(e){ if(e.pointerType!=='mouse') return; clearTimeout(tmr); tmr=setTimeout(function(){setOpen(item);},openItem?40:120); });
+    item.addEventListener('pointerenter',function(e){ if(e.pointerType!=='mouse') return; megaImgs(item); clearTimeout(tmr); tmr=setTimeout(function(){setOpen(item);},openItem?40:120); });
     item.addEventListener('pointerleave',function(e){ if(e.pointerType!=='mouse') return; clearTimeout(tmr); tmr=setTimeout(function(){ if(openItem===item) setOpen(null); },180); });
     link.addEventListener('focus',function(){ var fv=true; try{ fv=link.matches(':focus-visible'); }catch(_){} if(fv){ clearTimeout(tmr); setOpen(item); } });
     item.addEventListener('keydown',function(e){
@@ -110,9 +125,14 @@
 
   /* ---------- mobile sheet (v8: accordion, focus trap) ---------- */
   var sheet=d.getElementById('sheet'), menuBtn=d.querySelector('[data-open-sheet]');
-  function lock(on){ root.style.overflow=on?'hidden':''; }
-  function closeSheet(ret){ if(!sheet||!sheet.classList.contains('is-open')) return; sheet.classList.remove('is-open'); sheet.setAttribute('inert',''); lock(false); if(menuBtn){ menuBtn.setAttribute('aria-expanded','false'); if(ret) menuBtn.focus(); } if(typeof solid==='function') solid(); }
-  d.querySelectorAll('[data-open-sheet]').forEach(function(b){ b.addEventListener('click',function(){ sheet.classList.add('is-open'); sheet.removeAttribute('inert'); lock(true); b.setAttribute('aria-expanded','true'); var c=sheet.querySelector('[data-close-sheet]'); if(c) c.focus(); }); });
+  var lockY=0, locked=false, bd=d.body;
+  function lock(on){
+    if(on===locked) return; locked=on;
+    if(on){ lockY=window.scrollY||root.scrollTop||0; bd.style.position='fixed'; bd.style.top=(-lockY)+'px'; bd.style.left='0'; bd.style.right='0'; bd.style.width='100%'; }
+    else { bd.style.position=''; bd.style.top=''; bd.style.left=''; bd.style.right=''; bd.style.width=''; var b=root.style.scrollBehavior; root.style.scrollBehavior='auto'; window.scrollTo(0,lockY); root.style.scrollBehavior=b; }
+  }
+  function closeSheet(ret){ if(!sheet||!sheet.classList.contains('is-open')) return; sheet.classList.remove('is-open'); sheet.setAttribute('inert',''); lock(false); if(menuBtn){ menuBtn.setAttribute('aria-expanded','false'); if(ret) menuBtn.focus({preventScroll:true}); } if(typeof solid==='function') solid(); }
+  d.querySelectorAll('[data-open-sheet]').forEach(function(b){ b.addEventListener('click',function(){ sheet.classList.add('is-open'); sheet.removeAttribute('inert'); lock(true); b.setAttribute('aria-expanded','true'); var c=sheet.querySelector('[data-close-sheet]'); if(c) c.focus({preventScroll:true}); }); });
   d.querySelectorAll('[data-close-sheet]').forEach(function(b){ b.addEventListener('click',function(){ closeSheet(true); }); });
   if(sheet){
     sheet.querySelectorAll('button.sheet__cat[aria-controls]').forEach(function(b){ b.addEventListener('click',function(){
@@ -131,8 +151,8 @@
   /* ---------- search overlay ---------- */
   var srch=d.getElementById('srch'), sIn=d.getElementById('srch-in'), sRes=d.getElementById('srch-res'), sAll=d.getElementById('srch-all'), sQuick=d.getElementById('srch-quick');
   var active=-1;
-  function openSearch(){ if(!srch) return; srch.classList.add('is-open'); srch.removeAttribute('inert'); lock(true); setOpen(null); catalog(); setTimeout(function(){ sIn.focus(); },60); }
-  function closeSearch(){ srch.classList.remove('is-open'); srch.setAttribute('inert',''); lock(false); }
+  function openSearch(){ if(!srch) return; srch.classList.add('is-open'); srch.removeAttribute('inert'); lock(true); setOpen(null); catalog(); void srch.offsetWidth; sIn.focus({preventScroll:true}); setTimeout(function(){ if(d.activeElement!==sIn) sIn.focus({preventScroll:true}); },60); }
+  function closeSearch(){ if(!srch.classList.contains('is-open')) return; srch.classList.remove('is-open'); srch.setAttribute('inert',''); lock(false); }
   d.querySelectorAll('[data-open-search]').forEach(function(b){ b.addEventListener('click',function(e){ e.preventDefault(); if(sheet) { sheet.classList.remove('is-open'); sheet.setAttribute('inert',''); } openSearch(); }); });
   if(srch){
     srch.querySelectorAll('[data-close-search]').forEach(function(b){ b.addEventListener('click',closeSearch); });
@@ -159,6 +179,7 @@
   }
   d.addEventListener('keydown',function(e){
     if(e.key==='Escape'){ if(srch&&srch.classList.contains('is-open')) closeSearch(); closeSheet(true); setOpen(null); }
+    if(srch&&srch.classList.contains('is-open')&&d.activeElement!==sIn&&e.key.length===1&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&!/input|textarea|select/i.test(e.target.tagName)){ e.preventDefault(); sIn.focus({preventScroll:true}); sIn.value+=e.key; sIn.dispatchEvent(new Event('input')); return; }
     if((e.key==='/'&&!/input|textarea|select/i.test(e.target.tagName))||((e.metaKey||e.ctrlKey)&&e.key==='k')){ e.preventDefault(); openSearch(); }
   });
 
@@ -176,10 +197,10 @@
   /* ---------- stat count-up (proof band) ---------- */
   var cnt=[].slice.call(d.querySelectorAll('[data-count]'));
   if(cnt.length&&!reduce&&'IntersectionObserver' in window&&window.requestAnimationFrame){
-    cnt.forEach(function(el){ el.textContent=el.getAttribute('data-from')||'0'; });
     var cio=new IntersectionObserver(function(es){ es.forEach(function(e){
       if(!e.isIntersecting) return; cio.unobserve(e.target);
       var el=e.target, to=+el.getAttribute('data-count'), fr=+(el.getAttribute('data-from')||0), t0=null, dur=1400;
+      if(e.boundingClientRect.top<innerHeight*0.6&&performance.now()<1500) return;  /* already on screen at load: keep the real number */
       var tick=function(t){ if(t0===null) t0=t; var k=Math.min(1,(t-t0)/dur), ez=1-Math.pow(1-k,4);
         el.textContent=String(Math.round(fr+(to-fr)*ez)); if(k<1) requestAnimationFrame(tick); };
       requestAnimationFrame(tick);

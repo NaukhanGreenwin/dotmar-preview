@@ -32,21 +32,24 @@
     var p=lb.querySelector('.lb__nav--p'), n=lb.querySelector('.lb__nav--n');
     if(p) p.addEventListener('click',function(e){ e.stopPropagation(); lbShow(cur-1); });
     if(n) n.addEventListener('click',function(e){ e.stopPropagation(); lbShow(cur+1); });
-    lbStage.addEventListener('pointerdown',function(e){ if(e.target.closest('.lb__nav')) return; drag={x:e.clientX,y:e.clientY,tx:tx,ty:ty,moved:false}; lbStage.setPointerCapture(e.pointerId); });
-    lbStage.addEventListener('pointermove',function(e){ if(!drag||z===1) return; var dx=e.clientX-drag.x, dy=e.clientY-drag.y; if(Math.abs(dx)+Math.abs(dy)>4) drag.moved=true; tx=drag.tx+dx; ty=drag.ty+dy; lbImg.style.transition='none'; apply(); });
+    lbStage.addEventListener('pointerdown',function(e){ if(e.target.closest('.lb__nav')) return; drag={x:e.clientX,y:e.clientY,tx:tx,ty:ty,moved:false}; try{ lbStage.setPointerCapture(e.pointerId); }catch(_){} });
+    lbStage.addEventListener('pointermove',function(e){ if(!drag) return; var dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+      if(z===1){ if(Math.abs(dx)>8||Math.abs(dy)>8) drag.moved=true; if(drag.moved&&Math.abs(dx)>Math.abs(dy)){ tx=dx; ty=0; lbImg.style.transition='none'; apply(); } return; }  /* swipe: image follows the finger */
+      if(Math.abs(dx)+Math.abs(dy)>4) drag.moved=true; tx=drag.tx+dx; ty=drag.ty+dy; lbImg.style.transition='none'; apply(); });
+    lbStage.addEventListener('pointercancel',function(){ if(drag&&z===1){ tx=0;ty=0; lbImg.style.transition=''; apply(); } drag=null; });
     lbStage.addEventListener('pointerup',function(e){
       lbImg.style.transition='';
       if(drag&&!drag.moved){
         if(z>1){ z=1;tx=0;ty=0; } else { var r=lbStage.getBoundingClientRect(); z=2.4; tx=-(e.clientX-r.left-r.width/2)*1.4; ty=-(e.clientY-r.top-r.height/2)*1.4; }
         apply();
-      } else if(drag&&z===1){ var dx=e.clientX-drag.x; if(Math.abs(dx)>50) lbShow(cur+(dx<0?1:-1)); }
+      } else if(drag&&z===1){ var dx=e.clientX-drag.x, dy=e.clientY-drag.y; if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)) lbShow(cur+(dx<0?1:-1)); else { tx=0;ty=0; apply(); } }
       drag=null;
     });
     d.addEventListener('keydown',function(e){ if(!lb.classList.contains('is-open')) return; if(e.key==='Escape') lbClose(); if(e.key==='ArrowRight') lbShow(cur+1); if(e.key==='ArrowLeft') lbShow(cur-1); });
   }
 
   /* variants + buy */
-  var vars=data.variants, opts=data.options, sel=(vars.find(function(v){return v.a;})||vars[0]).o.slice();
+  var vars=data.variants, opts=data.options, sel=(vars.find(function(v){return v.a&&v.p>0;})||vars.find(function(v){return v.p>0;})||vars[0]).o.slice();  /* same default as build.py */
   var priceEl=d.getElementById('price'), stockEl=d.getElementById('stock'), affEl=d.getElementById('affirm');
   var buyNow=d.getElementById('buy-now'), addCart=d.getElementById('add-cart'), qtyIn=d.getElementById('qty');
   function variant(){ return vars.find(function(v){ return v.o.every(function(x,i){ return x===sel[i]; }); }); }
@@ -64,6 +67,10 @@
     });
     if(!v){ if(buyNow){ buyNow.setAttribute('aria-disabled','true'); } return; }
     if(data.quote) return;
+    if(!(v.p>0)){ priceEl.innerHTML='<span class="now now--q">Price on request</span>'; stockEl.className='pill pill--quote'; stockEl.textContent='Quote';
+      [buyNow,addCart,d.getElementById('bar-buy')].forEach(function(b){ if(b) b.setAttribute('aria-disabled','true'); }); buyNow.textContent='Call for price';
+      var bp0=d.querySelector('[data-bar-price]'); if(bp0) bp0.textContent='Price on request'; var bb0=d.getElementById('bar-buy'); if(bb0) bb0.textContent='Call for price';
+      if(v.img!=null&&v.img!==cur&&v.img<imgs.length) show(v.img); return; }
     priceEl.innerHTML='<span class="now">'+DM.money(v.p)+'</span>'+(v.c>v.p?'<s>'+DM.money(v.c)+'</s><span class="save">Save '+DM.money(v.c-v.p)+'</span>':'')+'<span class="cur">CAD</span>';
     stockEl.className='pill'+(v.a?'':' pill--out'); stockEl.textContent=v.a?'In stock':'Sold out';
     var q=Math.max(1,Math.min(99,parseInt(qtyIn.value,10)||1));

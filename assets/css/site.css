@@ -1543,3 +1543,9 @@ blockquote.quote{border-left:3px solid var(--brand);padding-left:var(--s3)}
 .hdr.is-scrolled,.hdr.is-solid{background:rgba(255,255,255,.97)}
 .mega--compact{background:rgba(255,255,255,.97)}
 .pdx-sum.pdx-rte p>strong:only-child,.pdx-sum.pdx-rte p>b:only-child{font-weight:500}
+
+/* lane0 2026-10-25: listings with no photo anywhere (service lines, unpublished parts) = designed icon tile, no fake photo */
+.card__noimg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#B9AFA9}
+.card__noimg svg{width:30%;height:auto;stroke-width:1.2}
+.g2__noico{display:block;width:96px;margin:0 auto 14px;color:#B9AFA9}
+.g2__noico svg{width:100%;height:auto;stroke-width:1.2}

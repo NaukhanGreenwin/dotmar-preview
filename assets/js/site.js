@@ -15,6 +15,7 @@
   function loc(L,w){ var ks=Object.keys(L).map(Number).sort(function(a,b){return a-b;}); for(var i=0;i<ks.length;i++){ if(ks[i]>=w) return ROOT+L[ks[i]]; } return ROOT+L[ks[ks.length-1]]; }
   function lset(L){ return Object.keys(L).map(function(k){ return ROOT+L[k]+' '+k+'w'; }).join(', '); }
   function srcset(src){ return W.map(function(w){return sized(src,w)+' '+w+'w';}).join(', '); }
+  var NOI={"wrench": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\"/></svg>", "card": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><rect x=\"2.5\" y=\"5\" width=\"19\" height=\"14\" rx=\"2\"/><path d=\"M2.5 10h19\"/></svg>", "parts": "<svg viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 2.75l11.5 6.63v13.24L16 29.25 4.5 22.62V9.38z\"/><circle cx=\"16\" cy=\"16\" r=\"5.25\"/></svg>"};
   function card(p,sizes){
     var tag='';
     if(p.q) tag='<span class="card__tag card__tag--mute">Quote</span>';
@@ -23,6 +24,7 @@
     var price = p.q ? '<span class="q">Price on request</span>' :
       ((p.m?'From ':'')+money(p.p)+(p.c>p.p?' <s>'+money(p.c)+'</s>':''));
     var img = p.i ? '<img class="lz" src="'+(p.L?loc(p.L,512):sized(p.i,480))+'" srcset="'+(p.L?lset(p.L):srcset(p.i))+'" sizes="'+(sizes||'(max-width:734px) 46vw, (max-width:1068px) 31vw, 290px')+'" alt="" loading="lazy" decoding="async" width="480" height="480">' : '';
+    if(!p.i && p.n && NOI[p.n]) img='<span class="card__noimg" aria-hidden="true">'+NOI[p.n]+'</span>';
     return '<a class="card" href="'+ROOT+'p/'+p.h+'.html"><div class="card__media">'+img+tag+'</div>'+
       '<p class="card__brand">'+(p.b?esc(p.b):'&nbsp;')+'</p>'+'<h3 class="card__title">'+esc(p.t)+'</h3><p class="card__price price">'+price+'</p></a>';
   }
